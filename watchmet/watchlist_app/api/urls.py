@@ -1,0 +1,9 @@
+from django.urls import path
+from .views import WatchListAV, WatchListDetail, StreamPlatformList, StreamPlatformDetail
+
+urlpatterns = [
+    path('list/', WatchListAV.as_view(), name='movie-list'),
+    path('<int:pk>/', WatchListDetail.as_view(), name='movie-detail'),
+    path('streamplatforms/', StreamPlatformList.as_view(), name='stream-platforms'),
+    path('streamplatforms/<int:pk>', StreamPlatformDetail.as_view(), name='stream-detail')
+]
