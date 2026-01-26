@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     #Apps
     'watchlist_app',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,30 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #         'rest_framework.permissions.IsAuthenticated',
 #     ]
 # }
+
+REST_FRAMEWORK = {
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # 'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ],
+    
+    # 'DEFAULT_THROTTLE_CLASSES': [
+    #     'rest_framework.throttling.AnonRateThrottle',
+    #     'rest_framework.throttling.UserRateThrottle'
+    # ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '2/day',
+        'user': '5/day',
+        'review-detail': '2/day',
+        'review-list': '5/day',
+    }
+}
+
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS': True,
+}
