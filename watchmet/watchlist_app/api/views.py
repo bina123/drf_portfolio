@@ -11,6 +11,21 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from .permissions import IsAdminOrReadonly, IsReviewUserOrReadOnly
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle, ScopedRateThrottle
 from .throttling import ReviewDetailThrottle, ReviewListThrottle
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from .pagination import WatchListPagination, WatchListLOPagination, WatchListCPagination
+
+class UserReview(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+    
+    # def get_queryset(self):
+    #     username = self.kwargs['username']
+    #     return Review.objects.filter(review_user__username=username)
+
+    def get_queryset(self):
+        username = self.request.query_params.get("username")
+        if username is not None:
+            return Review.objects.filter(review_user__username=username)
 
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
@@ -42,7 +57,11 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
     throttle_classes = [ReviewListThrottle, AnonRateThrottle]
-    
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['active', 'review_user__username']
+    ordering_fields = ['rating']
+
+
     def get_queryset(self):
         pk = self.kwargs.get("pk")
         return Review.objects.filter(watchlist=pk)
@@ -70,6 +89,15 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     
 #     def post(self, request, *args, **kwargs):
 #         return self.create(request, *args, **kwargs)
+class WatchListGV(generics.ListAPIView):
+    queryset = WatchList.objects.all()
+    serializer_class = WatchListSerializer
+    
+    pagination_class = WatchListCPagination
+    
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title']
+    ordering_fields = ['avg_rating']
 
 class WatchListAV(APIView):
     permission_classes = [IsAdminOrReadonly]
@@ -116,6 +144,8 @@ class StreamPlatformViewset(viewsets.ModelViewSet):
     queryset = StreamPlatform.objects.all()
     serializer_class = StreamPlatformSerializer
     permission_classes = [IsAdminOrReadonly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
     
 # class StreamPlatformViewset(viewsets.ViewSet):
     
